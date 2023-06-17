@@ -2,6 +2,7 @@ import numpy as np
 
 class Missile:
     def __init__(self, position, velocity, mass, drag_coefficient, characteristic_area):
+        print("Missile Controller Initialized")
         self.position = np.array(position, dtype=float)
         self.velocity = np.array(velocity, dtype=float)
         self.mass = mass

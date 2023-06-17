@@ -39,3 +39,4 @@ model_ts*.txt
 _darcs
 
 Env
+tensorboard_logs
