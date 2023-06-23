@@ -8,8 +8,9 @@ from stable_baselines3.common.callbacks import BaseCallback
 from blender_env import MissileGym
 
 # Hyper Paramters
-total_timesteps = 1500000
+total_timesteps = 4000000
 random_seed = 0
+num_episodes = 1
 
 class TensorboardCallback(BaseCallback):
     def __init__(self, verbose=0):
@@ -24,7 +25,7 @@ class TensorboardCallback(BaseCallback):
 
         return True
 
-def test_model(model_path, num_episodes=10, max_steps_per_episode=3000):
+def test_model(model_path, num_episodes=10, max_steps_per_episode=1000):
     model = PPO.load(model_path)
 
     env = DummyVecEnv([lambda: MissileGym(create_animation=False)])  # Wrap the environment
@@ -50,17 +51,17 @@ def test_model(model_path, num_episodes=10, max_steps_per_episode=3000):
 
 if __name__ == "__main__":
 
-    env = DummyVecEnv([lambda: MissileGym()])
+    # env = DummyVecEnv([lambda: MissileGym()])
 
-    set_random_seed(random_seed)
+    # set_random_seed(random_seed)
 
-    dir_path = os.path.dirname(bpy.data.filepath)
-    tensorboard_log=os.path.join(dir_path, "tensorboard_logs/")
+    # dir_path = os.path.dirname(bpy.data.filepath)
+    # tensorboard_log=os.path.join(dir_path, "tensorboard_logs/")
 
-    model = PPO('MlpPolicy', env, verbose=1, device="cuda", tensorboard_log=tensorboard_log)
+    # model = PPO('MlpPolicy', env, verbose=1, device="cuda", tensorboard_log=tensorboard_log)
 
-    model.learn(total_timesteps=total_timesteps)
+    # model.learn(total_timesteps=total_timesteps)
 
-    model.save("missile_ppo_randomized")
+    # model.save("missile_ppo_randomized_4w")
 
-    test_model("missile_ppo_randomized")
+    test_model("missile_ppo_randomized_4w", num_episodes=num_episodes)

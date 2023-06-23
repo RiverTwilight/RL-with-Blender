@@ -4,6 +4,7 @@ from gym import spaces
 from controller.missile import Missile
 import bpy
 import time
+from mathutils import Vector
 
 obstacle_names=[
     # "Obstacle"
@@ -23,7 +24,7 @@ class MissileGym(gym.Env):
         self.reset_missile()
         
         self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=np.int32)
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(6,))
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(4,))
 
         self.action_mapping = [
             np.array([-1, 0, 0]),  # Left
@@ -51,6 +52,14 @@ class MissileGym(gym.Env):
         self.target_object.location = self.target
         print("Shuffle Target", self.target)
 
+    def update_orientation(self):
+        direction = Vector(self.missile.velocity)
+        rot_quat = direction.to_track_quat('Y', 'Z')
+        self.missile_object.rotation_euler = rot_quat.to_euler()
+
+        if self.create_animation:
+            self.missile_object.keyframe_insert(data_path="rotation_euler", frame=self.frame)
+
     def reset_missile(self):
         self.missile = Missile(list(self.base_object.location), [1, 0, 0], 1, 0.1, 1)
         self.missile_object.location = self.missile.position
@@ -59,6 +68,8 @@ class MissileGym(gym.Env):
         control_force = np.concatenate((action, [0]))
 
         self.missile.update(control_force, [0, 0, 0], 0.1)
+
+        self.update_orientation()
 
         self.missile_object.location = self.missile.position
 
@@ -79,7 +90,7 @@ class MissileGym(gym.Env):
 
         done = new_distance > 300 or new_distance < 3  # If close enough to the target
 
-        obs = np.concatenate((self.missile.position[:2], self.missile.velocity[:2], self.target[:2]))
+        obs = np.concatenate((self.missile.position[:2], self.target[:2]))
 
         if self.create_animation:
             print(reward)
@@ -92,7 +103,7 @@ class MissileGym(gym.Env):
         self.randomize_target()
         self.reset_missile()
 
-        obs = np.concatenate((self.missile.position[:2], self.missile.velocity[:2], self.target[:2]))
+        obs = np.concatenate((self.missile.position[:2], self.target[:2]))
 
         self.frame = 0
         if self.create_animation:
